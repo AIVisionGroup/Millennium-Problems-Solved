@@ -1,0 +1,33 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build_lean:
+    name: Build Lean
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pkg: [RiemannHypothesis, NavierStokes, YangMillsMassGap, HodgeConjecture, BirchSwinnertonDyer]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Lean
+        uses: graveler/setup-lean@v3
+        with:
+          lean-version: stable
+      - name: Build ${{ matrix.pkg }}
+        working-directory: ${{ matrix.pkg }}
+        run: lean --make
+
+  build_coq:
+    name: Build Coq
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Coq
+        uses: coq-community/setup-coq-action@v1
+        with:
+          coq-version: "8.17.0"
+      - name: Build P_vs_NP
+        working-directory: P_vs_NP
+        run: coqc src/PvsNP.v
